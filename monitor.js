@@ -19,7 +19,7 @@ var data = {
         sdFirstId: 0,
         sdSecondId: 0,
     },
-    condition: '(function () { for (let i in body.dutyCalendars){ if (body.dutyCalendars[i].dutyWeek === "六" && body.dutyCalendars[i].remainAvailableNumber > 0){return true} } })()',
+    condition: '(function () { for (let i in body.dutyCalendars){ if (["六", "日"].indexOf(body.dutyCalendars[i].dutyWeek) !== -1 && body.dutyCalendars[i].remainAvailableNumber > 0){return true} } })()',
     mailTitle: '114预约有票',
     mailContent: '114预约有票,快去抢',
     time: 3
