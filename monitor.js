@@ -1,73 +1,104 @@
 const request = require('request');
-const nodemailer  = require('nodemailer');
+const moment = require('moment');
+const sql = require('./mysql');
+const email = require('./email');
+const tgTimeList = require('./json/tgTime');
+const department = require('./json/department')
+moment.locale('zh-cn');
 
-var data = {
-    url: 'http://www.114yygh.com/dpt/week/calendar.htm',
+let data = {
+    url: 'http://www.114yygh.com/web/product/list',
     method: 'post',
-    json: true,
     headers: {
-        'content-type': 'application/json'
+        'Content-Type': 'application/json',
     },
-    cookie: 'JSESSIONID=112FC534070861A5CC5C04A3085C78A4;SESSION_COOKIE=4cab1829cea36edbcez07f7e',
+    cookie: '',
     query: {
-        hospitalId: 129,
-        departmentId: 200001196,
-        departmentName: '',
-        week: 1,
-        isAjax: true,
-        relType: 0,
-        sdFirstId: 0,
-        sdSecondId: 0,
-    },
-    condition: '(function () { for (let i in body.dutyCalendars){ if (["六", "日"].indexOf(body.dutyCalendars[i].dutyWeek) !== -1 && body.dutyCalendars[i].remainAvailableNumber > 0){return true} } })()',
-    mailTitle: '114预约有票',
-    mailContent: '114预约有票,快去抢',
-    time: 3
-}
-
-const params = {
-    host: 'smtp.aliyun.com',
-    port: 465,
-    sercure: true,
-    auth: {
-        user: 'api_monitor@aliyun.com',
-        pass: 'Aliyun376288'
+        hospitalId: '129',
+        departmentId: '200001196',
+        week: 1
     }
 }
 
-// 邮件信息
-const mailOptions = {
-    from: 'api_monitor@aliyun.com', // 发送邮箱
-    to: 'linbo.zhao@gaea.com', // 接受邮箱
-    subject: data.mailTitle,
-    html: data.mailContent
-}
-
-// 发送邮件
-const transporter = nodemailer.createTransport(params)
-
-var j = request.jar();
-var cookie = request.cookie(data.cookie)
+let j = request.jar();
+let cookie = request.cookie(data.cookie)
 j.setCookie(cookie, 'http://www.114yygh.com');
 
 setInterval(function (){
-    request({
-        url: data.url,
-        jar: j,
-        method: data.method,
-        json: data.json,
-        headers: data.headers,
-        form: data.query
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            if (eval(data.condition)) {
-                transporter.sendMail(mailOptions, function(error, info){
-                    if(error){
-                        return console.log(error);
-                    }
-                    console.log('Message sent: ' + info.response);
-                });
+    // 查询余票请求
+    function ajaxFoo(data){
+        return new Promise(function(resolve, reject){
+            request({
+                url: data.url,
+                method: data.method,
+                json: true,
+                headers: data.headers,
+                body: data.query
+            }, function(error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    resolve(body)
+                }
+                if (error && response.statusCode == 200) {
+                    reject(error)
+                }
+            });
+        })
+    }
+    // 查询数据库
+    sql.getTasks().then(function(res){
+        let taskArr = {}
+        for (let i in res) {
+            // 医院的停止挂号时间
+            let tgTime = tgTimeList[res[i].hospitalId]
+            let updateTime = new Date(moment().format('YYYY-MM-DD') + ' ' + tgTime) - new Date(moment().format('YYYY-MM-DD') + ' 00:00:00')
+            let timeIndex = (new Date(res[i].targetDay) - new Date() + updateTime)/1000/60/60/24 - 1
+            res[i].week = Math.ceil(timeIndex/7)
+            let key = '' + res[i].hospitalId + res[i].departmentId + res[i].week
+            if (res[i].week > 0) {
+                if (taskArr[key]) {
+                    taskArr[key].push(res[i])
+                }else {
+                    taskArr[key] = [res[i]]
+                }
             }
         }
-    });
-}, data.time*1000)
+        for (let i in taskArr) {
+            data.query.hospitalId = String(taskArr[i][0].hospitalId);
+            data.query.departmentId = String(taskArr[i][0].departmentId);
+            data.query.week = taskArr[i][0].week;
+            ajaxFoo(data).then(function(res){
+                let targetTask = []
+                for (let j in taskArr[i]) {
+                    for (let k in res.data.calendars) {
+                        let dateString = moment(taskArr[i][j].targetDay).format('YYYY-MM-DD')
+                        if (dateString === res.data.calendars[k].dutyDate && res.data.calendars[k].remainAvailableNumberWeb > 0) {
+                            targetTask.push(taskArr[i][j])
+                        }
+                    }
+                }
+                if(targetTask.length > 0) {
+                    for (let i in targetTask) {
+                        let hname = department[targetTask[i].hospitalId].name
+                        let dname = ''
+                        let dArr = department[targetTask[i].hospitalId].departments
+                        for (let j in dArr) {
+                            if(dArr[j].departments[targetTask[i].departmentId]) dname = dArr[j].departments[targetTask[i].departmentId]
+                        }
+                        email.sendEmail(targetTask[i].email,'114官网余票通知', '您预约的' + hname + dname + moment(targetTask[i].targetDay).format('YYYY-MM-DD') +  '现在有余票，请立即前往官网挂号，以免错失！',
+                            function (err, info) {
+                                if (err) {
+                                    console.log('err: ', err);
+                                } else {
+                                    sql.doneTask(targetTask[i]).then(function(res){
+                                        // console.log(res)
+                                    }).catch(function(res){console.log()})
+                                }
+                            })
+                    }
+                }
+            }).catch(function(res){console.log(res)})
+        }
+    }).catch(function(res){
+        console.log(res)
+    })
+}, 10*1000)

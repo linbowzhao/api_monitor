@@ -10,9 +10,15 @@
   "author": "linbo",
   "license": "ISC",
   "dependencies": {
+    "@alicloud/pop-core": "^1.7.7",
+    "cookie-parser": "^1.4.4",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
     "nodejs": "0.0.0",
     "nodemailer": "^6.3.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   }
 }
