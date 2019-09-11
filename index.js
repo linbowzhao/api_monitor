@@ -143,4 +143,4 @@ workerProcess.on('exit', function (code) {
   console.log('monitor.js已退出，退出码 '+code);
 });
 
-app.listen(3000);
+app.listen(3000, '127.0.0.1');
