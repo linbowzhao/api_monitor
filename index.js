@@ -19,6 +19,13 @@ function checkForm(data, arr) {
 }
 
 // 添加task
+app.get('/', function (req, res) {
+  res.send({
+    code: 0,
+    msg: '成功'
+  })
+});
+
 app.post('/api/add-monitor', function (req, res) {
   let must = ['token', 'hospitalId', 'departmentId', 'targetDay', 'phone']
   if (checkForm(req.body, must)) {
