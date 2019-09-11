@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/api/add-monitor', function (req, res) {
-  let must = ['token', 'hospitalId', 'departmentId', 'targetDay', 'phone']
+  let must = ['token', 'hospitalId', 'departmentId', 'targetDay', 'email']
   if (checkForm(req.body, must)) {
     let userInfo = tokenStore.get(req.body.token)
     if (!userInfo) {
