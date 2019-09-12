@@ -67,9 +67,9 @@ setInterval(function (){
             data.query.departmentId = String(taskObj[i][0].departmentId);
             data.query.week = taskObj[i][0].week;
             console.log('ajax:' + i)
-            let tt = new date()
+            let tt = new Date()
             ajaxFoo(data).then(function(res){
-                console.log('ajaxSuccess:' + new date() - tt )
+                console.log('ajaxSuccess:' + new Date() - tt )
                 let targetTask = []
                 for (let j in taskObj[i]) {
                     for (let k in res.data.calendars) {
