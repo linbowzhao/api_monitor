@@ -88,13 +88,14 @@ setInterval(function (){
                         }
                         email.sendEmail(targetTask[i].email,'114官网余票通知', '您预约的' + hname + dname + moment(targetTask[i].targetDay).format('YYYY-MM-DD') +  '现在有余票，请立即前往官网挂号，以免错失！',
                             function (err, info) {
-                                if (err) {
-                                    console.log('err: ', err);
-                                } else {
-                                    sql.doneTask(targetTask[i]).then(function(res){
-                                        // console.log(res)
-                                    }).catch(function(res){console.log()})
-                                }
+                            console.log(targetTask)
+                            if (err) {
+                                console.log('err: ', err);
+                            } else {
+                                sql.doneTask(targetTask[i]).then(function(res){
+                                    // console.log(res)
+                                }).catch(function(res){console.log()})
+                            }
                             })
                     }
                 }
