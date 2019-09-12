@@ -69,7 +69,7 @@ setInterval(function (){
             console.log('ajax:' + i)
             let tt = new Date()
             ajaxFoo(data).then(function(res){
-                console.log('ajaxSuccess:' + new Date() - tt )
+                console.log('ajaxSuccess:' + (new Date() - tt) )
                 let targetTask = []
                 for (let j in taskObj[i]) {
                     for (let k in res.data.calendars) {
