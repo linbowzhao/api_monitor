@@ -3,9 +3,10 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const child_process = require('child_process');
 const sql = require('./mysql');
+const conf = require('./conf/conf');
 const WXBizDataCrypt = require('./WXBizDataCrypt')
-let appId = 'wx5dc58610ae5f38e4'
-let appSecret = 'd02f9554591b6bb41fc52fe27178bc1a'
+let appId = conf.appId
+let appSecret = conf.appSecret
 let tokenStore = require('./session')
 const app = express();
 app.use(bodyParser.json());
@@ -137,6 +138,7 @@ app.post('/api/check-login', function (req, res) {
   }
 });
 
+// 任务监听通知脚本
 var workerProcess = child_process.exec('node monitor.js ', function (error, stdout, stderr) {
   if (error) {
     console.log(error.stack);
@@ -150,4 +152,4 @@ workerProcess.on('exit', function (code) {
   console.log('monitor.js已退出，退出码 '+code);
 });
 
-app.listen(3000);
+app.listen(conf.port, conf.host);

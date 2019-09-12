@@ -46,7 +46,7 @@ setInterval(function (){
     }
     // 查询数据库
     sql.getTasks().then(function(res){
-        let taskArr = {}
+        let taskObj = {}
         for (let i in res) {
             // 医院的停止挂号时间
             let tgTime = tgTimeList[res[i].hospitalId]
@@ -55,24 +55,26 @@ setInterval(function (){
             res[i].week = Math.ceil(timeIndex/7)
             let key = '' + res[i].hospitalId + res[i].departmentId + res[i].week
             if (res[i].week > 0) {
-                if (taskArr[key]) {
-                    taskArr[key].push(res[i])
+                if (taskObj[key]) {
+                    taskObj[key].push(res[i])
                 }else {
-                    taskArr[key] = [res[i]]
+                    taskObj[key] = [res[i]]
                 }
             }
         }
-        for (let i in taskArr) {
-            data.query.hospitalId = String(taskArr[i][0].hospitalId);
-            data.query.departmentId = String(taskArr[i][0].departmentId);
-            data.query.week = taskArr[i][0].week;
+        for (let i in taskObj) {
+            data.query.hospitalId = String(taskObj[i][0].hospitalId);
+            data.query.departmentId = String(taskObj[i][0].departmentId);
+            data.query.week = taskObj[i][0].week;
+            console.log('ajax:' + i)
             ajaxFoo(data).then(function(res){
+                console.log('ajaxSuccess:' + i)
                 let targetTask = []
-                for (let j in taskArr[i]) {
+                for (let j in taskObj[i]) {
                     for (let k in res.data.calendars) {
-                        let dateString = moment(taskArr[i][j].targetDay).format('YYYY-MM-DD')
+                        let dateString = moment(taskObj[i][j].targetDay).format('YYYY-MM-DD')
                         if (dateString === res.data.calendars[k].dutyDate && res.data.calendars[k].remainAvailableNumberWeb > 0) {
-                            targetTask.push(taskArr[i][j])
+                            targetTask.push(taskObj[i][j])
                         }
                     }
                 }

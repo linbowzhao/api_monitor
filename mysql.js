@@ -1,10 +1,11 @@
 const mysql = require('mysql');
+const conf = require('./conf/conf');
 
 var connection = mysql.createConnection({
-  host:'localhost',
-  user:'monitor',
-  password:'zhaplinbo',
-  port:3306,
+  host: conf.localhost,
+  user: conf.mysqlUser,
+  password: conf.mysqlPassword,
+  port: conf.mysqlPort,
   database:'api_monitor'
 });
 
@@ -67,6 +68,7 @@ module.exports = {
       hospitalId: data.hospitalId,
       departmentId: data.departmentId,
       phone: data.phone,
+      email: data.email,
       targetDay: data.targetDay,
       openId: data.openId,
       allTimes: 1

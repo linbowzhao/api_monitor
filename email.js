@@ -1,12 +1,13 @@
 const nodemailer = require('nodemailer');
+const conf = require('./conf/conf');
 
 const params = {
-  host: 'smtp.aliyun.com',
-  port: 465,
+  host: conf.emailHost,
+  port: conf.emailPort,
   sercure: true,
   auth: {
-    user: 'api_monitor@aliyun.com',
-    pass: 'Aliyun376288'
+    user: conf.emailUser,
+    pass: conf.emailPassword
   }
 }
 
