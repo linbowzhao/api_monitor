@@ -87,7 +87,7 @@ setInterval(function (){
                         for (let j in dArr) {
                             if(dArr[j].departments[targetTask[i].departmentId]) dname = dArr[j].departments[targetTask[i].departmentId]
                         }
-                        email.sendEmail(targetTask[i].email,'114官网余票通知', '您预约的' + hname + dname + moment(targetTask[i].targetDay).format('YYYY-MM-DD') +  '现在有余票，请立即前往官网挂号，以免错失！',
+                        email.sendEmail(targetTask[i].email,'114官网余票通知', '您预约的' + moment(targetTask[i].targetDay).format('YYYY-MM-DD') + hname + dname +  '现在有余票，请立即前往官网挂号，以免错失！',
                             function (err, info) {
                             console.log(targetTask)
                             if (err) {
