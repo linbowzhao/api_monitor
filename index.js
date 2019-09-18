@@ -19,13 +19,37 @@ function checkForm(data, arr) {
   return true
 }
 
-// 添加task
 app.get('/', function (req, res) {
-  res.send({
-    code: 0,
-    msg: '成功'
-  })
+  res.send('<!DOCTYPE html>\n' +
+      '<html>\n' +
+      '<head>\n' +
+      '    <meta charset="utf-8">\n' +
+      '    <title>个人网站</title>\n' +
+      '</head>\n' +
+      '<body>\n' +
+      '<p>网站开发中。。。</p>\n' +
+      '<footer style="text-align: center;position: fixed;bottom: 0;width: 100vw">\n' +
+      '    ICP备案号：\n' +
+      '    <a href="http://www.miitbeian.gov.cn">京ICP备19041615号</a>\n' +
+      '</footer>\n' +
+      '</body>\n' +
+      '</html>\n')
 });
+
+app.post('/web', function (req, res) {
+  console.log()
+  request({
+    url: 'http://www.114yygh.com/web/product/list',
+    method: 'post',
+    json: true,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: req.body,
+  }, function(error, response, body) {
+    res.send(body)
+  })
+})
 
 app.post('/api/add-monitor', function (req, res) {
   let must = ['token', 'hospitalId', 'departmentId', 'targetDay', 'email']
