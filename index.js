@@ -24,7 +24,7 @@ app.get('/', function (req, res) {
       '<html>\n' +
       '<head>\n' +
       '    <meta charset="utf-8">\n' +
-      '    <title>个人网站</title>\n' +
+      '    <title>我的日常文章</title>\n' +
       '</head>\n' +
       '<body>\n' +
       '<p>网站开发中。。。</p>\n' +
